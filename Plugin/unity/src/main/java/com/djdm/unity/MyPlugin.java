@@ -37,7 +37,8 @@ public class MyPlugin
 
     public void writeHighscore(float score, Context context)
     {
-        File path = mainActivity.getFilesDir();
+        File path = context.getFilesDir();
+        Log.i(LOGTAG, path.toString());
         File file = new File(path, "highscore.txt");
 
         try
@@ -87,6 +88,16 @@ public class MyPlugin
 
         String score = new String(bytes);
         return Float.parseFloat(score);
+    }
+
+    public void deleteHighscore(Context context)
+    {
+        File path = context.getFilesDir();
+
+        File file = new File(path, "highscore.txt");
+        if (!file.exists()) return;
+
+        file.delete();
     }
 
     public void showAlertView(final String[] strings, final AlertViewCallback callback)

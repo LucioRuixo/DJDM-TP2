@@ -133,3 +133,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   necessaryCuts: 1
   cutVibrationDuration: 100
+  particleSystem: {fileID: 0}

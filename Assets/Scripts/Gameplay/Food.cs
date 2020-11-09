@@ -13,9 +13,11 @@ public class Food : MonoBehaviour
 
     [SerializeField] long cutVibrationDuration = 100;
 
+    [SerializeField] new ParticleSystem particleSystem = null;
     SpriteRenderer spriteRenderer;
     Rigidbody2D rigidBody;
     new Collider2D collider;
+    FoodGenerator.FruitPool pool;
 
     static public event Action OnCut;
     static public event Action OnUncut;
@@ -53,17 +55,30 @@ public class Food : MonoBehaviour
     {
         if (!cut) OnUncut?.Invoke();
 
-        Destroy(gameObject);
+        Despawn();
     }
 
     void Cut()
     {
-        spriteRenderer.color = Color.black;
         cut = true;
 
         Vibration.Vibrate(cutVibrationDuration);
 
+        Despawn();
         OnCut?.Invoke();
+    }
+
+    void Despawn()
+    {
+        cut = false;
+        cuts = 0;
+
+        pool.DespawnFruit(gameObject);
+    }
+
+    public void SetPool(FoodGenerator.FruitPool _pool)
+    {
+        pool = _pool;
     }
 
     public void SetFall(float force, Vector2 position, Quaternion rotation)

@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager_Gameplay : UIManager
 {
+    [SerializeField] GameObject instructions = null;
     [SerializeField] Text score = null;
     [SerializeField] Slider bar = null;
+
+    public static event Action OnGameplayStart;
 
     void OnEnable()
     {
@@ -38,5 +42,12 @@ public class UIManager_Gameplay : UIManager
     void UpdateBar(float newValue)
     {
         bar.value = newValue;
+    }
+
+    public void CloseInstructions()
+    {
+        instructions.SetActive(false);
+
+        OnGameplayStart?.Invoke();
     }
 }

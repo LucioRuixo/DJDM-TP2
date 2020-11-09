@@ -1,14 +1,42 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class FoodGenerator : MonoBehaviour
 {
+    [Serializable]
+    public class FruitPool
+    {
+        public Queue<GameObject> queue = new Queue<GameObject>();
+
+        public GameObject SpawnFruit(Vector3 position, Quaternion rotation)
+        {
+            GameObject newFruit = queue.Dequeue();
+
+            newFruit.transform.position = position;
+            newFruit.transform.rotation = rotation;
+
+            newFruit.SetActive(true);
+            return newFruit;
+        }
+
+        public void DespawnFruit(GameObject fruit)
+        {
+            fruit.SetActive(false);
+            queue.Enqueue(fruit);
+        }
+    }
+
     [SerializeField] bool generationActive = true;
 
     float impulse;
 
-    [SerializeField] List<GameObject> foodPrefabs = new List<GameObject>();
+    [Header("Fruit Pools: ")]
+    [SerializeField] int fruitsPerPool = 1;
+
+    [SerializeField] List<GameObject> fruitPrefabs = new List<GameObject>();
+    List<FruitPool> fruitPools = new List<FruitPool>();
 
     [Header("Generation Properties: ")]
     [SerializeField] float initialImpulse = 1f;
@@ -26,17 +54,41 @@ public class FoodGenerator : MonoBehaviour
     void OnEnable()
     {
         GameManager.OnDifficultyIncrease += IncreaseImpulse;
+        UIManager_Gameplay.OnGameplayStart += StartGeneration;
     }
 
     void Start()
     {
+        foreach (GameObject fruitPrefab in fruitPrefabs)
+        {
+            FruitPool newPool = new FruitPool();
+            GameObject fruitContainer = new GameObject(fruitPrefab.name + " Container");
+            fruitContainer.transform.SetParent(transform);
+
+            for (int i = 0; i < fruitsPerPool; i++)
+            {
+                Food newFruit = Instantiate(fruitPrefab, fruitContainer.transform).GetComponent<Food>();
+                newFruit.SetPool(newPool);
+
+                newPool.queue.Enqueue(newFruit.gameObject);
+                newFruit.gameObject.SetActive(false);
+            }
+
+            fruitPools.Add(newPool);
+        }
+
         impulse = initialImpulse;
-        StartCoroutine(Generate());
     }
 
     void OnDisable()
     {
-        GameManager.OnDifficultyIncrease += IncreaseImpulse;
+        GameManager.OnDifficultyIncrease -= IncreaseImpulse;
+        UIManager_Gameplay.OnGameplayStart -= StartGeneration;
+    }
+
+    void StartGeneration()
+    {
+        StartCoroutine(Generate());
     }
 
     void IncreaseImpulse(float impulseIncrease)
@@ -51,17 +103,17 @@ public class FoodGenerator : MonoBehaviour
         while (generationActive)
         {
             Vector2 position = transform.position;
-            position.x = Random.Range(minX, maxX);
+            position.x = UnityEngine.Random.Range(minX, maxX);
 
-            float addedAngle = Random.Range(-(angleRange / 2f), angleRange / 2f);
+            float addedAngle = UnityEngine.Random.Range(-(angleRange / 2f), angleRange / 2f);
             Quaternion addedRotation = Quaternion.Euler(0f, 0f, addedAngle);
             Quaternion rotation = transform.rotation * addedRotation;
 
-            GameObject prefab = foodPrefabs[Random.Range(0, foodPrefabs.Count)];
-            Food newFood = Instantiate(prefab, position, rotation, transform).GetComponent<Food>();
+            int poolIndex = UnityEngine.Random.Range(0, fruitPools.Count - 1);
+            Food newFood = fruitPools[poolIndex].SpawnFruit(position, rotation).GetComponent<Food>();
             newFood.SetFall(impulse, position, rotation);
 
-            float waitTime = Random.Range(minWaitTime, maxWaitTime);
+            float waitTime = UnityEngine.Random.Range(minWaitTime, maxWaitTime);
             yield return new WaitForSeconds(waitTime);
         }
     }

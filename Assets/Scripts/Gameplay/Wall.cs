@@ -8,7 +8,7 @@ public class Wall : MonoBehaviour
         Right
     }
 
-    [SerializeField] Side side;
+    [SerializeField] Side side = Side.Left;
 
     void Awake()
     {

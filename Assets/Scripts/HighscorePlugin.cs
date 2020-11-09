@@ -66,6 +66,21 @@ public class HighscorePlugin : MonoBehaviourSingleton<HighscorePlugin>
             Debug.LogError("Application platform must be Android");
     }
 
+    void ShowDeleteFileDialog()
+    {
+        string[] strings = new string[] { "Borrado de archivo", "¿Borrar el puntaje más alto?", "No", "Sí" };
+        Action<int> handler = (int obj) => { if (obj == -2) DeleteHighscore(); Debug.Log("Local handler called: " + obj); };
+        ShowAlertDialog(strings, handler);
+    }
+
+    public void ShowHighscoreDialog()
+    {
+        float highscore = GetHighscore();
+        string[] strings = new string[] { "Puntaje más alto", highscore + " puntos", "Cerrar", "Borrar puntaje" };
+        Action<int> handler = (int obj) => { if (obj == -2) ShowDeleteFileDialog(); Debug.Log("Local handler called: " + obj); };
+        ShowAlertDialog(strings, handler);
+    }
+
     public void SetHighscore(float score)
     {
         AndroidJavaObject activity = PluginClass.GetStatic<AndroidJavaObject>("mainActivity");
@@ -80,11 +95,9 @@ public class HighscorePlugin : MonoBehaviourSingleton<HighscorePlugin>
         return highscore;
     }
 
-    public void ShowHighscoreDialog()
+    void DeleteHighscore()
     {
-        float highscore = GetHighscore();
-        string[] strings = new string[] { "Puntaje más alto", highscore + " puntos", "Cerrar" };
-        Action<int> handler = (int obj) => { Debug.Log("Local handler called: " + obj); };
-        ShowAlertDialog(strings, handler);
+        AndroidJavaObject activity = PluginClass.GetStatic<AndroidJavaObject>("mainActivity");
+        PluginInstance.Call("deleteHighscore", activity);
     }
 }
