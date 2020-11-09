@@ -40,7 +40,7 @@ public class Food : MonoBehaviour
             if (collider == Physics2D.OverlapPoint(touchPosition))
             {
                 cuts++;
-                if (cuts >= necessaryCuts) Cut();
+                if (cuts >= necessaryCuts) GetCut();
             }
         }
 
@@ -58,7 +58,7 @@ public class Food : MonoBehaviour
         Despawn();
     }
 
-    void Cut()
+    void GetCut()
     {
         cut = true;
 

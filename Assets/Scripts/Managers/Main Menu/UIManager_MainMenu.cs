@@ -1,4 +1,5 @@
-﻿using UnityEngine.SceneManagement;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UIManager_MainMenu : UIManager
 {
@@ -19,6 +20,9 @@ public class UIManager_MainMenu : UIManager
 
     public void DisplayHighscore()
     {
-        HighscorePlugin.Get().ShowHighscoreDialog();
+        if (Application.platform == RuntimePlatform.Android)
+            HighscorePlugin.Get().ShowHighscoreDialog();
+        else
+            Debug.LogWarning("This feature only works in Android devices");
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine.SceneManagement;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FinalScoreContainer : MonoBehaviourSingleton<FinalScoreContainer>
 {
@@ -14,10 +15,12 @@ public class FinalScoreContainer : MonoBehaviourSingleton<FinalScoreContainer>
 
     void CheckLoadedScene(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == SceneNameManager.Get().ScoreScreen)
+        if (scene.name == SceneNameManager.Get().ScoreScreen && FinalScore > HighscorePlugin.Get().GetHighscore())
         {
-            if (FinalScore > HighscorePlugin.Get().GetHighscore())
+            if (Application.platform == RuntimePlatform.Android)
                 HighscorePlugin.Get().SetHighscore(FinalScore);
+            else 
+                Debug.LogWarning("Highscore could not be saved because application platform is not Android4");
         }
     }
 
